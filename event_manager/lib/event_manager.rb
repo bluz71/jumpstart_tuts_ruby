@@ -12,6 +12,20 @@ def clean_zipcode(zipcode)
   zipcode.to_s.rjust(5, "0")[0..4]
 end
 
+def clean_phone_number(phone)
+  # Strip out all non-digits first.
+  sanitized_number = phone.gsub(/[^\d]/, "") unless phone.nil?
+
+  if sanitized_number.length < 10 || sanitized_number.length > 11
+    ""
+  elsif sanitized_number.length == 10
+    sanitized_number
+  elsif sanitized_number.length == 11
+    return sanitized_number[1..-1] if sanitized_number[0] == "1"
+    ""
+  end
+end
+
 def legislators_by_zipcode(zipcode)
   Sunlight::Congress::Legislator.by_zipcode(zipcode)
 end
@@ -27,6 +41,7 @@ CSV.foreach("event_attendees.csv", headers: :first_row, header_converters: :symb
   id = row[0]
   name = row[:first_name]
   zipcode = clean_zipcode(row[:zipcode])
+  phone = clean_phone_number(row[:homephone])
   legislators = legislators_by_zipcode(zipcode)
 
   letter = ERB_TEMPLATE.result(binding)
