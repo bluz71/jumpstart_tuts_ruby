@@ -1,3 +1,6 @@
+# The Sunlight gem will need to be installed.
+# % gem install sunlight-congress
+
 require 'csv'
 require 'erb'
 require 'fileutils'
@@ -36,16 +39,25 @@ end
 
 
 FileUtils.mkdir("letters") unless Dir.exist?("letters")
+hour_registered = []
+hour_counts = {}
 
 CSV.foreach("event_attendees.csv", headers: :first_row, header_converters: :symbol) do |row|
   id = row[0]
   name = row[:first_name]
   zipcode = clean_zipcode(row[:zipcode])
   phone = clean_phone_number(row[:homephone])
+  reg_date = DateTime.strptime(row[:regdate], "%m/%d/%y %H:%M")
+  hour_registered << reg_date.hour
   legislators = legislators_by_zipcode(zipcode)
 
   letter = ERB_TEMPLATE.result(binding)
   save_thanks(id, letter)
   print "."
 end
+
 print "\n"
+hour_registered.uniq.each do |hour|
+  hour_counts[hour] = hour_registered.count(hour)
+end
+puts "Most popular hour of the day for registration: #{hour_counts.key(hour_counts.values.sort[-1])}"
