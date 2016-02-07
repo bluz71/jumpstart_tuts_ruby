@@ -10,13 +10,12 @@ class MicroBlogger
   attr_reader :client
 
   def initialize
-    puts "Initializing MicroBlogger"
-    @client = JumpstartAuth.twitter
+    @client = initialize_client
   end
 
   def tweet(message)
     if message.length > 140
-      puts "Message '#{message[0..5]}' too long, must be less than or equal to 140 characters."
+      puts "Message '#{message[0..2]}..' is too long"
     else
       @client.update(message)
     end
@@ -71,6 +70,10 @@ class MicroBlogger
 
   private
 
+    def initialize_client
+      JumpstartAuth.twitter
+    end
+
     def followers_list
       @client.followers.map { |follower| @client.user(follower).screen_name }
     end
@@ -88,6 +91,3 @@ class MicroBlogger
     end
 
 end
-
-blogger = MicroBlogger.new
-blogger.run
