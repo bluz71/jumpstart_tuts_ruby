@@ -1,16 +1,18 @@
 # Gems required:
-#   % gem install jumpstart_auth
+#   % gem install jumpstart_auth bitly
 #
 # Test Twitter user: phesledetr1
 #                    phesledetr@thrma.com :: TheJ**..........
 
 require 'jumpstart_auth'
+require 'bitly'
 
 class MicroBlogger
   attr_reader :client
 
   def initialize
     @client = initialize_client
+    @bitly = initialize_bitly
   end
 
   def tweet(message)
@@ -43,6 +45,11 @@ class MicroBlogger
     end
   end
 
+  def shorten_url(original_url)
+    puts "Shortening this URL: #{original_url}"
+    @bitly.shorten(original_url).short_url
+  end
+
   def run
     puts "Welcome to the JSL Twitter Client!"
     command = ""
@@ -62,6 +69,10 @@ class MicroBlogger
         spam_my_followers(parts[1..1].join(" "))
       when "last"
         everyones_last_tweet
+      when "s"
+        shorten_url(parts[1..-1].join(" "))
+      when "turl"
+        tweet(parts[1..-2].join(" ") + shorten_url(parts[-1]))
       else
         puts "Sorry, I don't know about #{command}"
       end
@@ -72,6 +83,11 @@ class MicroBlogger
 
     def initialize_client
       JumpstartAuth.twitter
+    end
+
+    def initialize_bitly
+      Bitly.use_api_version_3
+      Bitly.new("hungryacademy", "R_430e9f62250186d2612cca76eee2dbc6")
     end
 
     def followers_list

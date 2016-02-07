@@ -1,5 +1,8 @@
 require_relative '../lib/micro_blogger'
 
+class MockBitly
+end
+
 class MockUser
   def initialize(name)
     @name = name
@@ -38,6 +41,8 @@ describe MicroBlogger do
   before do
     allow_any_instance_of(MicroBlogger).to \
       receive(:initialize_client).and_return(MockClient.new)
+    allow_any_instance_of(MicroBlogger).to \
+      receive(:initialize_bitly).and_return(MockBitly.new)
   end
 
   context "when processing commands" do
